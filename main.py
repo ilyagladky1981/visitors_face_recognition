@@ -15,7 +15,11 @@ def face_rec():
   
   pil_gal_face_img = Image.fromarray(gal_face_img)
   draw_gal_face_img = ImageDraw.Draw(pil_gal_face_img)
-
+  
+  for(top, right, bottom, left) in gal_face_location:
+     draw_gal_face_img.rectangle(((left, top), (right, bottom)), outline=(255, 87, 51), width=4)
+  pil_gal_face_img.save("img/new_gal1.jpg")
+  del draw_gal_face_img
 
 def main():
   face_rec()
