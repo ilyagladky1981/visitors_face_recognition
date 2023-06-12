@@ -1,5 +1,5 @@
 import face_recognition
-
+from PIL import Image, ImageDraw
 
 def face_rec():
   gal_face_img = face_recognition.load_image_file("img/gal1.jpg")
@@ -12,7 +12,9 @@ def face_rec():
   print(justice_league_faces_location)
   print(f"Found {len(gal_face_location)} face(s) in this image")
   print(f"Found {len(justice_league_faces_location)} face(s) in this image")
-
+  
+  pil_gal_face_img = Image.fromarray(gal_face_img)
+  draw_gal_face_img = ImageDraw.Draw(pil_gal_face_img)
 
 
 def main():
