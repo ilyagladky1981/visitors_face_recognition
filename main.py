@@ -25,12 +25,11 @@ def face_rec():
   pil_justice_league_img = Image.fromarray(justice_league_img)
   draw_justice_league_img = ImageDraw.Draw(pil_justice_league_img)
   
-  for(top, right, bottom, left) in gal_face_location:
+  for(top, right, bottom, left) in justice_league_faces_location:
      draw_justice_league_img.rectangle(((left, top), (right, bottom)), outline=(255, 87, 51), width=10)
   
   pil_justice_league_img.save("img/new_justice_league.jpg")
   del draw_justice_league_img
-
 
 def main():
   face_rec()
