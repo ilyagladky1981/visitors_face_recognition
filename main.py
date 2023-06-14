@@ -1,6 +1,8 @@
 import face_recognition
 from PIL import Image, ImageDraw
 import pickle
+import os
+from cv2 import cv2
 
 def face_rec():
   gal_face_img = face_recognition.load_image_file("img/gal1.jpg")
@@ -34,6 +36,7 @@ def face_rec():
 
 def extract_faces(img_path)
   count = 0
+  input_file_name = os.path.splitext(img_path)[0]
   img_file = face_recognition.load_image_file(img_path)
   faces_location = face_recognition.face_locations(img_file)
   
@@ -42,7 +45,7 @@ def extract_faces(img_path)
     
     face_img = img_file[top:bottom, left:right]
     pil_img = Image.fromarray(face_img)
-    pil_img.save()
+    pil_img.save(f"img/input_file_name{count}_face_img.jpg")
     count += 1
   
   return f"Found {count} face(s) in this photo"
@@ -63,6 +66,53 @@ def compare_faces(img1_path, img2_path):
     print("Welcome to the club! :*")
   else:
     print("Sorry, not today... Next!")
+
+
+def detect_person_in_video():
+    data = pickle.loads(open("Person_name_encodings.pickle", "rb").read())
+    video = cv2.VideoCapture("video.mp4")
+
+    while True:
+        ret, image = video.read()
+
+        locations = face_recognition.face_locations(image, model="cnn")
+        encodings = face_recognition.face_encodings(image, locations)
+
+        for face_encoding, face_location in zip(encodings, locations):
+            result = face_recognition.compare_faces(data["encodings"], face_encoding)
+            match = None
+
+            if True in result:
+                match = data["name"]
+                print(f"Match found! {match}")
+            else:
+                print("ACHTUNG! ALARM!")
+
+            left_top = (face_location[3], face_location[0])
+            right_bottom = (face_location[1], face_location[2])
+            color = [0, 255, 0]
+            cv2.rectangle(image, left_top, right_bottom, color, 4)
+
+            left_bottom = (face_location[3], face_location[2])
+            right_bottom = (face_location[1], face_location[2] + 20)
+            cv2.rectangle(image, left_bottom, right_bottom, color, cv2.FILLED)
+            cv2.putText(
+                image,
+                match,
+                (face_location[3] + 10, face_location[2] + 15),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (255, 255, 255),
+                4
+            )
+
+        cv2.imshow("detect_person_in_video is running", image)
+
+        k = cv2.waitKey(20)
+        if k == ord("q"):
+            print("Q pressed, closing the app")
+            break
+
 
 
 def main():
