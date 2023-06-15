@@ -55,7 +55,7 @@ def extract_faces(img_path):
 def compare_faces(img1_path, img2_path):
   img1 = face_recognition.load_image_file(img1_path)
   img1_encodings = face_recognition.face_encodings(img1)[0]
-  print(img1_encodings)
+  # print(img1_encodings)
   
   img2 = face_recognition.load_image_file(img2_path)
   img2_encodings = face_recognition.face_encodings(img2)[0]
@@ -117,8 +117,8 @@ def detect_person_in_video():
 
 def main():
   # face_rec()
-  print(extract_faces("img/justice_league_actors.jpg"))
-
+  # print(extract_faces("img/justice_league_actors.jpg"))
+  compare_faces("img/gal1.jpg", "img/gal2.jpg")
 
 
 if __name__ == '__main__':
