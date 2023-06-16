@@ -2,7 +2,7 @@ import os
 import pickle
 import sys
 import face_recognition
-
+import cv2 as cv2
 
 def train_model_by_img(name):
   if not os.path.exists("dataset"):
@@ -54,11 +54,48 @@ def train_model_by_img(name):
   return f"[INFO] File {name}_encodings.pickle successfully created"
 
 
-
+def take_screenshot_from_video():
+    vid_capture = cv2.VideoCapture("video.mp4")
+    count = 0
+    
+    if not os.path.exists("dataset_from_video"):
+        os.mkdir("dataset_from_video")
+    
+    while(vid_capture.isOpened()):
+        ret, frame = vid_capture.read()
+        fps = vid_capture.get(cv2.CAP_PROP_FPS)
+        multiplier = fps * 3
+        # print(fps)
+        
+        if ret:
+            frame_id = int(round(vid_capture.get(1)))
+            # print(frame_id)
+            # cv2.imshow("frame", frame)
+            
+            if frame_id % multiplier == 0:
+                cv2.imwrite(f"dataset_from_video/{count}.jpg", frame)
+                print(f"Take a screenshot {count}")
+                count += 1
+            
+            k = cv2.waitKey(20)
+            
+            if k == ord(" "):
+                cv2.imwrite(f"dataset_from_video/{count}_extra_scr.jpg", frame)
+                print(f"Take an extra screenshot {count}")
+                count += 1
+            elif k == ord("q"):
+                print("Q pressed, closing the app")
+                break
+        else:
+            print("[Error] Can't get the frame...")
+            break
+    
+    vid_capture.release()
+    cv2.destroyAllWindows()
 
 def main():
-  print(train_model_by_img("rigina"))
-  # take_screenshot_from_video()
+  # print(train_model_by_img("rigina"))
+  take_screenshot_from_video()
 
 
 
