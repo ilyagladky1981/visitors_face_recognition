@@ -2,7 +2,7 @@ import face_recognition
 from PIL import Image, ImageDraw
 import pickle
 import os
-#from cv2 import cv2
+import cv2
 
 def face_rec():
   gal_face_img = face_recognition.load_image_file("img/gal1.jpg")
