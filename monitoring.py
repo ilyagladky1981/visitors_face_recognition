@@ -16,12 +16,13 @@ height = 1080
 # Functions
 
 
-def create_capture(current_registrator_ip_port, channel):
+def camera_capture(current_registrator_ip_port, channel):
     rtsp = f"rtsp://" + current_registrator_ip_port + \
-          "/user={rtsp_username}" + \
-          "&password={rtsp_password}" + \
-          "&channel={channel}"  + \
-          "&stream=0.sdp"
+          f"/user={rtsp_username}" + \
+          f"&password={rtsp_password}" + \
+          f"&channel={channel}"  + \
+          f"&stream=0.sdp"
+    print("rtsp=",rtsp)
     capture = cv2.VideoCapture()
     capture.open(rtsp)
     return capture
@@ -30,10 +31,11 @@ def create_capture(current_registrator_ip_port, channel):
 
 def main():
     # Программа мониторинга лиц посетителей
-    registrator_id = cameras_for_monitoring.keys[0]
+    registrators = list(cameras_for_monitoring.keys())
+    registrator_id = registrators[0]
     camera_number = cameras_for_monitoring[registrator_id][0]
     current_registrator_ip_port = registrator_ip_port[registrator_id]
-    capture_obj = create_capture(current_registrator_ip_port, str(camera_number))
+    capture_obj = camera_capture(current_registrator_ip_port, str(camera_number))
     file_count = 0
     while(capture_obj.isOpened()):
         file_count += 1
