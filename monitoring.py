@@ -6,8 +6,8 @@ import cv2
 
 # Const
 
-cameras_for_monitoring = {'new6':[13,14,15,16], 'new3':[14], 'new2':[12, 13, 16], 'new1':[15], '4k2':[21]}
-registrator_ip_port = {'new1':'192.168.11.243:554', 'new2':'192.168.11.158:554', 'new3':'192.168.11.140:554', 'new6':'192.168.11.53:554', '4k2':'192.168.1.3:554'}
+cameras_for_monitoring = {'new6':[15]}
+registrator_ip_port = {'new6':'192.168.11.53:554'}
 rtsp_username = 'admin'
 rtsp_password = ''
 width = 1920
@@ -16,31 +16,62 @@ height = 1080
 # Functions
 
 
-def create_capture(current_registrator_ip_port, channel):
+def camera_capture(current_registrator_ip_port, channel):
     rtsp = f"rtsp://" + current_registrator_ip_port + \
-          "/user={rtsp_username}" + \
-          "&password={rtsp_password}" + \
-          "&channel={channel}"  + \
-          "&stream=0.sdp"
+          f"/user={rtsp_username}" + \
+          f"&password={rtsp_password}" + \
+          f"&channel={channel}"  + \
+          f"&stream=0.sdp"
+    print("rtsp=",rtsp)
     capture = cv2.VideoCapture()
     capture.open(rtsp)
+    #print("capture=",dir(capture))
     return capture
 
 
 
 def main():
     # Программа мониторинга лиц посетителей
-    registrator_id = cameras_for_monitoring.keys[0]
+    registrators = list(cameras_for_monitoring.keys())
+    registrator_id = registrators[0]
     camera_number = cameras_for_monitoring[registrator_id][0]
     current_registrator_ip_port = registrator_ip_port[registrator_id]
-    capture_obj = create_capture(current_registrator_ip_port, str(camera_number))
+    capture_obj = camera_capture(current_registrator_ip_port, str(camera_number))
     file_count = 0
-    while(capture_obj.isOpened()):
+    
+    import os.path
+    path = os.path.realpath(cv2.__file__)
+    print("cv2=",path)
+    path = os.path.dirname(cv2.__file__)
+    print("cv2=",path)
+    
+ bool result = false;
+ try
+ {
+ result = imwrite("alpha.png", mat, compression_params);
+ }
+ catch (const cv::Exception& ex)
+ {
+ fprintf(stderr, "Exception converting image to PNG format: %s\n", ex.what());
+ }
+ if (result)
+ printf("Saved PNG file with alpha data.\n");
+ else
+ printf("ERROR: Can't save PNG file.\n");
+
+    #while(capture_obj.isOpened()):
+    while(file_count < 2):
         file_count += 1
         ret, current_frame = capture_obj.read()
+        print("ret, file_count=",ret,file_count)
+        #print("current_frame=", type(current_frame))
+        #print(dir(current_frame))
         if ret == True:
-          writefile = f"Resources/Image_sequence/cam{camera_number}_{file_count}.jpg"
-          capture_obj.imwrite(writefile, frame)
+            writefile = f"/home/igladky/visitors_face_recognition/Resources/Image_sequence/cam{camera_number}_{file_count}.jpg"
+            writeresult = cv2.imwrite(writefile, current_frame)
+            print("writefile=",writefile)
+            print("writeresult=", writeresult)
+    pass
     print("dict cameras_for_monitoring")
     #for key in cameras_for_monitoring.keys():
     #    print(f"{key} -> {cameras_for_monitoring[key]}")

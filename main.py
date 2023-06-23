@@ -43,7 +43,6 @@ def extract_faces(img_path):
   
   for face_location in faces_location:
     top, right, bottom, left = face_location
-    
     face_img = img_file[top:bottom, left:right]
     pil_img = Image.fromarray(face_img)
     pil_img.save(f"img/{input_file_name}_{count}_face_img.jpg")
