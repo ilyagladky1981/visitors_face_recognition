@@ -3,6 +3,7 @@ from PIL import Image, ImageDraw
 import pickle
 import os
 import cv2
+import numpy as np
 
 # Const
 
@@ -40,37 +41,39 @@ def main():
     file_count = 0
     
     import os.path
-    path = os.path.realpath(cv2.__file__)
-    print("cv2=",path)
-    path = os.path.dirname(cv2.__file__)
-    print("cv2=",path)
+    #path = os.path.realpath(cv2.__file__)
+    #print("cv2=",path)
+    #path = os.path.dirname(2.__file__)
+    #print("cv2=",path)
     
- bool result = false;
- try
- {
- result = imwrite("alpha.png", mat, compression_params);
- }
- catch (const cv::Exception& ex)
- {
- fprintf(stderr, "Exception converting image to PNG format: %s\n", ex.what());
- }
- if (result)
- printf("Saved PNG file with alpha data.\n");
- else
- printf("ERROR: Can't save PNG file.\n");
-
     #while(capture_obj.isOpened()):
     while(file_count < 2):
         file_count += 1
         ret, current_frame = capture_obj.read()
+        print(current_frame.shape)
+        print(current_frame.dtype)
         print("ret, file_count=",ret,file_count)
         #print("current_frame=", type(current_frame))
         #print(dir(current_frame))
         if ret == True:
-            writefile = f"/home/igladky/visitors_face_recognition/Resources/Image_sequence/cam{camera_number}_{file_count}.jpg"
-            writeresult = cv2.imwrite(writefile, current_frame)
+            writefile = f"/home/igladky/visitors_face_recognition/Data/Image_sequence/cam{camera_number}_{file_count}.jpg"
+            image_directory = os.path.dirname(writefile)
+            result = False;
+            try:
+                result = cv2.imwrite(writefile, current_frame)
+            except cv2.error as e:
+                # inspect error object
+                print("e=",e)
+                print(type(e))
+                for k in dir(e):
+                    if k[0:2] != "__":
+                        print("e.%s = %s" % (k, getattr(e, k)))
+                    # handle error: empty frame
+                    if e.err == "!_src.empty()":
+                        break # break the while loop
+            #writeresult = cv2.imwrite(writefile, current_frame)
             print("writefile=",writefile)
-            print("writeresult=", writeresult)
+            print("result=", result)
     pass
     print("dict cameras_for_monitoring")
     #for key in cameras_for_monitoring.keys():
