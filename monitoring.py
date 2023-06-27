@@ -56,7 +56,7 @@ def main():
         #print("current_frame=", type(current_frame))
         #print(dir(current_frame))
         if ret == True:
-            writefile = f"/home/igladky/visitors_face_recognition/Data/Image_sequence/cam{camera_number}_{file_count}.jpg"
+            writefile = f"/home/igladky/m_face_recognition/Data/Image_sequence/cam{camera_number}_{file_count}.jpg"
             image_directory = os.path.dirname(writefile)
             result = False;
             try:
