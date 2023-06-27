@@ -33,47 +33,46 @@ def camera_capture(current_registrator_ip_port, channel):
 
 def main():
     # Программа мониторинга лиц посетителей
+    data = dict("encodings":[], "name":[])
     registrators = list(cameras_for_monitoring.keys())
     registrator_id = registrators[0]
     camera_number = cameras_for_monitoring[registrator_id][0]
     current_registrator_ip_port = registrator_ip_port[registrator_id]
     capture_obj = camera_capture(current_registrator_ip_port, str(camera_number))
-    file_count = 0
+    count = 0
     
-    import os.path
-    #path = os.path.realpath(cv2.__file__)
-    #print("cv2=",path)
     #path = os.path.dirname(2.__file__)
     #print("cv2=",path)
     
-    #while(capture_obj.isOpened()):
-    while(file_count < 2):
-        file_count += 1
+    while(capture_obj.isOpened()):
+    #while(count < 1):
+        count += 1
         ret, current_frame = capture_obj.read()
-        print(current_frame.shape)
-        print(current_frame.dtype)
-        print("ret, file_count=",ret,file_count)
-        #print("current_frame=", type(current_frame))
-        #print(dir(current_frame))
+        #print(current_frame.shape)
+        #print(current_frame.dtype)
+        #print("ret, count=", ret, count)
         if ret == True:
-            writefile = f"/home/igladky/m_face_recognition/Data/Image_sequence/cam{camera_number}_{file_count}.jpg"
+            writefile = f"/home/igladky/m_face_recognition/Data/" + \
+                        f"Image_sequence/reg{registrator_id}_" + \
+                        f"cam{camera_number}_{count}.jpg"
             image_directory = os.path.dirname(writefile)
-            result = False;
-            try:
-                result = cv2.imwrite(writefile, current_frame)
-            except cv2.error as e:
-                # inspect error object
-                print("e=",e)
-                print(type(e))
-                for k in dir(e):
-                    if k[0:2] != "__":
-                        print("e.%s = %s" % (k, getattr(e, k)))
-                    # handle error: empty frame
-                    if e.err == "!_src.empty()":
-                        break # break the while loop
-            #writeresult = cv2.imwrite(writefile, current_frame)
-            print("writefile=",writefile)
-            print("result=", result)
+            #print(os.listdir(image_directory))
+            img_cur_frame = Image.fromarray(current_frame)
+            img_cur_frame.save(writefile)
+            locations = face_recognition.face_locations(current_frame, model="cnn")
+            encodings = face_recognition.face_encodings(current_frame, locations)
+            for face_encoding, face_location in zip(encodings, locations):
+                result = face_recognition.compare_faces(data["encodings"], face_encoding)
+                match = None
+                if True in result:
+                    match = data["name"]
+                else:
+                    # Pillow save image
+                # Save Name, registrator, camera, Data and Time, and location
+                
+            #print(os.listdir(image_directory))
+            #print("writefile=", writefile)
+            #print("result=", result)
     pass
     print("dict cameras_for_monitoring")
     #for key in cameras_for_monitoring.keys():
