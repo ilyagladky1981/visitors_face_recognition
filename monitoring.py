@@ -4,6 +4,12 @@ import pickle
 import os
 import cv2
 import numpy as np
+import sqlite3
+from sqlite3 import Error
+
+
+
+FACE_BD = "./DB/face_db.sqlite"
 
 # Const
 
@@ -30,6 +36,16 @@ def camera_capture(current_registrator_ip_port, channel):
     return capture
 
 
+def create_connection(path):
+    connection = None
+    try:
+        connection = sqlite3.connect(path)
+        print("Connection to SQLite DB successful")
+    except Error as e:
+        print(f"The error '{e}' occurred")
+    return connection
+
+
 
 def main():
     # Программа мониторинга лиц посетителей
@@ -41,11 +57,14 @@ def main():
     capture_obj = camera_capture(current_registrator_ip_port, str(camera_number))
     count = 0
     
+    connection = create_connection(FACE_BD)
+    connection.close()
+    
     #path = os.path.dirname(2.__file__)
     #print("cv2=",path)
     
     while(capture_obj.isOpened()):
-    #while(count < 1):
+        #while(count < 1):
         count += 1
         ret, current_frame = capture_obj.read()
         #print(current_frame.shape)
@@ -55,19 +74,26 @@ def main():
             writefile = f"/home/igladky/m_face_recognition/Data/" + \
                         f"Image_sequence/reg{registrator_id}_" + \
                         f"cam{camera_number}_{count}.jpg"
-            image_directory = os.path.dirname(writefile)
-            #print(os.listdir(image_directory))
-            img_cur_frame = Image.fromarray(current_frame)
-            img_cur_frame.save(writefile)
+            # image_directory = os.path.dirname(writefile)
+            # print(os.listdir(image_directory))
+            # img_cur_frame = Image.fromarray(current_frame)
+            # img_cur_frame.save(writefile)
             locations = face_recognition.face_locations(current_frame, model="cnn")
             encodings = face_recognition.face_encodings(current_frame, locations)
+            img_count = 0
             for face_encoding, face_location in zip(encodings, locations):
+                img_count += 1
+                writefile = f"/home/igladky/m_face_recognition/Data/" + \
+                            f"Image_sequence/reg{registrator_id}_" + \
+                            f"cam{camera_number}_{img_count}.jpg"
                 result = face_recognition.compare_faces(data["encodings"], face_encoding)
                 match = None
                 if True in result:
                     match = data["name"]
                 else:
                     # Pillow save image
+                    img_cur_frame = Image.fromarray(current_frame)
+                    img_cur_frame.save(writefile)
                 # Save Name, registrator, camera, Data and Time, and location
                 
             #print(os.listdir(image_directory))
