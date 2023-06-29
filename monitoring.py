@@ -8,25 +8,24 @@ import sqlite3
 from sqlite3 import Error
 
 
-
-FACE_BD = "./DB/face_db.sqlite"
-
 # Const
 
+
+FACE_BD = "./DB/face_db.sqlite"
 cameras_for_monitoring = {'new6':[15]}
 registrator_ip_port = {'new6':'192.168.11.53:554'}
-rtsp_username = 'admin'
-rtsp_password = ''
-width = 1920
-height = 1080
+RSTP_USERNAME = 'admin'
+RSTP_PASSWORD = ''
+WIDTH = 1920
+HEIGHT = 1080
 
 # Functions
 
 
 def camera_capture(current_registrator_ip_port, channel):
     rtsp = f"rtsp://" + current_registrator_ip_port + \
-          f"/user={rtsp_username}" + \
-          f"&password={rtsp_password}" + \
+          f"/user={RSTP_USERNAME}" + \
+          f"&password={RSTP_PASSWORD}" + \
           f"&channel={channel}"  + \
           f"&stream=0.sdp"
     print("rtsp=",rtsp)
@@ -35,21 +34,41 @@ def camera_capture(current_registrator_ip_port, channel):
     #print("capture=",dir(capture))
     return capture
 
+def InitDB(path):
+    connection = create_connection(FACE_BD)
+    cursor = connection.cursor()
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+    #cursor.execute("Show tables;")
+    records = cursor.fetchall()
+    print(records)
+    print(type(records))
+    
+    
+    
+    cursor.close()
+    connection.close()
+
 
 def create_connection(path):
     connection = None
     try:
         connection = sqlite3.connect(path)
+        cursor = connection.cursor()
         print("Connection to SQLite DB successful")
+
+        sqlite_select_query = "select sqlite_version();"
+        cursor.execute(sqlite_select_query)
+        record = cursor.fetchall()
+        print("Версия базы данных SQLite: ", record)
+        cursor.close()
     except Error as e:
         print(f"The error '{e}' occurred")
     return connection
 
 
-
 def main():
     # Программа мониторинга лиц посетителей
-    data = dict("encodings":[], "name":[])
+    data = {'encodings':[], 'name':[]}
     registrators = list(cameras_for_monitoring.keys())
     registrator_id = registrators[0]
     camera_number = cameras_for_monitoring[registrator_id][0]
@@ -57,8 +76,13 @@ def main():
     capture_obj = camera_capture(current_registrator_ip_port, str(camera_number))
     count = 0
     
+    InitDB(FACE_BD)
+    
+    exit(0)
+    
     connection = create_connection(FACE_BD)
-    connection.close()
+    cursor = connection.cursor()
+    
     
     #path = os.path.dirname(2.__file__)
     #print("cv2=",path)
@@ -95,10 +119,14 @@ def main():
                     img_cur_frame = Image.fromarray(current_frame)
                     img_cur_frame.save(writefile)
                 # Save Name, registrator, camera, Data and Time, and location
-                
-            #print(os.listdir(image_directory))
-            #print("writefile=", writefile)
-            #print("result=", result)
+                cursor.execute("SELECT * FROM STAFF;")
+        k = cv2.waitKey(10)
+        if k == ord("q"):
+            capture_obj.close()
+            cursor.close()
+            connection.close()
+            print("Q pressed, closing the app")
+            break
     pass
     print("dict cameras_for_monitoring")
     #for key in cameras_for_monitoring.keys():
