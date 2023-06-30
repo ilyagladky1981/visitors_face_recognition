@@ -21,7 +21,6 @@ HEIGHT = 1080
 
 # Functions
 
-
 def camera_capture(current_registrator_ip_port, channel):
     rtsp = f"rtsp://" + current_registrator_ip_port + \
           f"/user={RSTP_USERNAME}" + \
@@ -38,12 +37,24 @@ def InitDB(path):
     connection = create_connection(FACE_BD)
     cursor = connection.cursor()
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
-    #cursor.execute("Show tables;")
     records = cursor.fetchall()
+    records = list(records[0])
     print(records)
     print(type(records))
+    if not('staff_monitoring' in records):
+        sqlite_create_table_query = '''CREATE TABLE staff_monitoring (
+            id INTEGER PRIMARY KEY,
+            staff_id INTEGER,
+            registrator_name TEXT NOT NULL,
+            camera_num INTEGER NOT NULL,
+            DataTime datetime default current_timestamp);'''
+        cursor.execute(sqlite_create_table_query)
     
-    
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+    records = list(cursor.fetchall())
+    records = list(*records[0])
+    print(records)
+    print(type(records))
     
     cursor.close()
     connection.close()
