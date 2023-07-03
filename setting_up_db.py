@@ -21,40 +21,36 @@ HEIGHT = 1080
 
 # Functions
 
-def camera_capture(current_registrator_ip_port, channel):
-    rtsp = f"rtsp://" + current_registrator_ip_port + \
-          f"/user={RSTP_USERNAME}" + \
-          f"&password={RSTP_PASSWORD}" + \
-          f"&channel={channel}"  + \
-          f"&stream=0.sdp"
-    print("rtsp=",rtsp)
-    capture = cv2.VideoCapture()
-    capture.open(rtsp)
-    #print("capture=",dir(capture))
-    return capture
 
 def InitDB(path):
     connection = create_connection(FACE_BD)
     cursor = connection.cursor()
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+    #cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
     records = cursor.fetchall()
-    records = list(records[0])
+    records = [list(tuple) for tuple in zip(*records)][0]
     print(records)
-    print(type(records))
     if not('staff_monitoring' in records):
-        sqlite_create_table_query = '''CREATE TABLE staff_monitoring (
+        sqlite_create_table_query = '''CREATE TABLE IF NOT EXISTS staff_monitoring (
             id INTEGER PRIMARY KEY,
             staff_id INTEGER,
             registrator_name TEXT NOT NULL,
             camera_num INTEGER NOT NULL,
             DataTime datetime default current_timestamp);'''
         cursor.execute(sqlite_create_table_query)
-
+    
+    if not('staff' in records):
+        sqlite_create_table_query = '''CREATE TABLE IF NOT EXISTS staff (
+            staff_id INTEGER PRIMARY KEY,
+            first_name TEXT NOT NULL,
+            second_name TEXT NOT NULL,
+            fathers_name TEXT NOT NULL);'''
+        cursor.execute(sqlite_create_table_query)
+    
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
     records = list(cursor.fetchall())
-    records = list(*records[0])
+    records = [list(tuple) for tuple in zip(*records)][0]
     print(records)
-    print(type(records))
     cursor.close()
     connection.close()
 
@@ -65,7 +61,6 @@ def create_connection(path):
         connection = sqlite3.connect(path)
         cursor = connection.cursor()
         print("Connection to SQLite DB successful")
-
         sqlite_select_query = "select sqlite_version();"
         cursor.execute(sqlite_select_query)
         record = cursor.fetchall()
@@ -77,19 +72,15 @@ def create_connection(path):
 
 
 def main():
-    # Программа мониторинга лиц посетителей
     data = {'encodings':[], 'name':[]}
-    registrators = list(cameras_for_monitoring.keys())
-    registrator_id = registrators[0]
-    camera_number = cameras_for_monitoring[registrator_id][0]
-    current_registrator_ip_port = registrator_ip_port[registrator_id]
-    capture_obj = camera_capture(current_registrator_ip_port, str(camera_number))
-    count = 0
-
-    InitDB(FACE_BD)
-
+    try:
+        InitDB(FACE_BD)
+    except Error as e:
+        print(f"The error '{e}' occurred")
+    
+    
     exit(0)
-
+    
     connection = create_connection(FACE_BD)
     cursor = connection.cursor()
 
