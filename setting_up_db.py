@@ -26,16 +26,25 @@ def InitDB(path):
     connection = create_connection(FACE_BD)
     cursor = connection.cursor()
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+    #cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
     records = cursor.fetchall()
     records = [list(tuple) for tuple in zip(*records)][0]
     print(records)
     if not('staff_monitoring' in records):
-        sqlite_create_table_query = '''CREATE TABLE staff_monitoring (
+        sqlite_create_table_query = '''CREATE TABLE IF NOT EXISTS staff_monitoring (
             id INTEGER PRIMARY KEY,
             staff_id INTEGER,
             registrator_name TEXT NOT NULL,
             camera_num INTEGER NOT NULL,
             DataTime datetime default current_timestamp);'''
+        cursor.execute(sqlite_create_table_query)
+    
+    if not('staff' in records):
+        sqlite_create_table_query = '''CREATE TABLE IF NOT EXISTS staff (
+            staff_id INTEGER PRIMARY KEY,
+            first_name TEXT NOT NULL,
+            second_name TEXT NOT NULL,
+            fathers_name TEXT NOT NULL);'''
         cursor.execute(sqlite_create_table_query)
     
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
